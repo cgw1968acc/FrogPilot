@@ -9,7 +9,6 @@ from abc import ABC, abstractmethod
 from multiprocessing import Process
 
 from setproctitle import setproctitle
-from types import SimpleNamespace
 
 from cereal import car, log
 import cereal.messaging as messaging
@@ -282,7 +281,7 @@ class DaemonProcess(ManagerProcess):
 
 
 def ensure_running(procs: ValuesView[ManagerProcess], started: bool, params=None, CP: car.CarParams=None,
-                   not_run: list[str] | None=None, classic_model=False, frogpilot_toggles=SimpleNamespace()) -> list[ManagerProcess]:
+                   not_run: list[str] | None=None, classic_model=False, frogpilot_toggles=None) -> list[ManagerProcess]:
   if not_run is None:
     not_run = []
 

@@ -1,7 +1,6 @@
 import cereal.messaging as messaging
 
 from openpilot.common.conversions import Conversions as CV
-from openpilot.common.params import Params
 
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_UNSET
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHANGE_COST, DANGER_ZONE_COST, J_EGO_COST, STOP_DISTANCE
@@ -17,8 +16,6 @@ from openpilot.selfdrive.frogpilot.frogpilot_variables import CRUISING_SPEED, MO
 
 class FrogPilotPlanner:
   def __init__(self):
-    self.params_memory = Params("/dev/shm/params")
-
     self.cem = ConditionalExperimentalMode(self)
     self.frogpilot_acceleration = FrogPilotAcceleration(self)
     self.frogpilot_events = FrogPilotEvents(self)

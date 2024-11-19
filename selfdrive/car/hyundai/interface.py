@@ -1,13 +1,15 @@
 from cereal import car, custom
 from panda import Panda
 from openpilot.selfdrive.car.hyundai.hyundaicanfd import CanBus
-from openpilot.selfdrive.car.hyundai.values import HyundaiFlags, CAR, DBC, CANFD_CAR, CAMERA_SCC_CAR, CANFD_RADAR_SCC_CAR, \
+from openpilot.selfdrive.car.hyundai.values import HyundaiFlags, FrogPilotHyundaiFlags, CAR, DBC, CANFD_CAR, CAMERA_SCC_CAR, CANFD_RADAR_SCC_CAR, \
                                          CANFD_UNSUPPORTED_LONGITUDINAL_CAR, EV_CAR, HYBRID_CAR, LEGACY_SAFETY_MODE_CAR, \
                                          UNSUPPORTED_LONGITUDINAL_CAR, Buttons
 from openpilot.selfdrive.car.hyundai.radar_interface import RADAR_START_ADDR
 from openpilot.selfdrive.car import create_button_events, get_safety_config
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 from openpilot.selfdrive.car.disable_ecu import disable_ecu
+
+from openpilot.selfdrive.frogpilot.frogpilot_variables import params
 
 Ecu = car.CarParams.Ecu
 ButtonType = car.CarState.ButtonEvent.Type
@@ -21,7 +23,7 @@ BUTTONS_DICT = {Buttons.RES_ACCEL: ButtonType.accelCruise, Buttons.SET_DECEL: Bu
 
 class CarInterface(CarInterfaceBase):
   @staticmethod
-  def _get_params(ret, candidate, fingerprint, car_fw, disable_openpilot_long, experimental_long, docs, params):
+  def _get_params(ret, candidate, fingerprint, car_fw, disable_openpilot_long, experimental_long, docs):
     use_new_api = params.get_bool("NewLongAPI")
 
     ret.carName = "hyundai"
@@ -76,7 +78,7 @@ class CarInterface(CarInterfaceBase):
         ret.flags |= HyundaiFlags.USE_FCA.value
 
       if 0x53E in fingerprint[2]:
-        ret.flags |= HyundaiFlags.LKAS12.value
+        ret.flags |= FrogPilotHyundaiFlags.LKAS12.value
 
     ret.steerActuatorDelay = 0.1  # Default delay
     ret.steerLimitTimer = 0.4
@@ -114,12 +116,12 @@ class CarInterface(CarInterfaceBase):
       ret.enableBsm = 0x1e5 in fingerprint[CAN.ECAN]
 
       if 0x1fa in fingerprint[CAN.ECAN]:
-        ret.flags |= HyundaiFlags.NAV_MSG.value
+        ret.flags |= FrogPilotHyundaiFlags.NAV_MSG.value
     else:
       ret.enableBsm = 0x58b in fingerprint[0]
 
       if 0x544 in fingerprint[0]:
-        ret.flags |= HyundaiFlags.NAV_MSG.value
+        ret.flags |= FrogPilotHyundaiFlags.NAV_MSG.value
 
     # *** panda safety config ***
     if candidate in CANFD_CAR:
@@ -147,7 +149,7 @@ class CarInterface(CarInterfaceBase):
         ret.safetyConfigs[0].safetyParam |= Panda.FLAG_HYUNDAI_CAMERA_SCC
 
       if 0x391 in fingerprint[0]:
-        ret.flags |= HyundaiFlags.CAN_LFA_BTN.value
+        ret.flags |= FrogPilotHyundaiFlags.CAN_LFA_BTN.value
         ret.safetyConfigs[0].safetyParam |= Panda.FLAG_HYUNDAI_LFA_BTN
 
     if ret.openpilotLongitudinalControl:
@@ -162,6 +164,10 @@ class CarInterface(CarInterfaceBase):
       ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_HYUNDAI_ALT_LIMITS
 
     ret.centerToFront = ret.wheelbase * 0.4
+
+    # Detect smartMDPS
+    if 0x2AA in fingerprint[0]:
+      ret.minSteerSpeed = 0.
 
     return ret
 

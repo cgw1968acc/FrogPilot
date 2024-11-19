@@ -7,7 +7,7 @@ from openpilot.common.conversions import Conversions as CV
 from opendbc.can.parser import CANParser
 from opendbc.can.can_define import CANDefine
 from openpilot.selfdrive.car.hyundai.hyundaicanfd import CanBus
-from openpilot.selfdrive.car.hyundai.values import HyundaiFlags, CAR, DBC, CAN_GEARS, CAMERA_SCC_CAR, \
+from openpilot.selfdrive.car.hyundai.values import HyundaiFlags, FrogPilotHyundaiFlags, CAR, DBC, CAN_GEARS, CAMERA_SCC_CAR, \
                                                    CANFD_CAR, Buttons, CarControllerParams
 from openpilot.selfdrive.car.interfaces import CarStateBase
 
@@ -64,11 +64,9 @@ class CarState(CarStateBase):
       speed_limit_bus = cp if self.CP.flags & HyundaiFlags.CANFD_HDA2 else cp_cam
       return speed_limit_bus.vl["CLUSTER_SPEED_LIMIT"]["SPEED_LIMIT_1"]
     else:
-      if self.CP.flags & HyundaiFlags.LKAS12:
-        speed_limit = cp_cam.vl["LKAS12"]["CF_Lkas_TsrSpeed_Display_Clu"]
-      else:
-        speed_limit = cp.vl["Navi_HU"]["SpeedLim_Nav_Clu"]
-      return speed_limit if speed_limit not in (0, 255) else 0
+      speed_limit_nav = cp.vl["Navi_HU"]["SpeedLim_Nav_Clu"] if self.CP.flags & FrogPilotHyundaiFlags.NAV_MSG else 0
+      speed_limit_cam = cp_cam.vl["LKAS12"]["CF_Lkas_TsrSpeed_Display_Clu"] if self.CP.flags & FrogPilotHyundaiFlags.LKAS12 else 0
+      return speed_limit_cam if speed_limit_cam not in (0, 255) else speed_limit_nav
 
   def update(self, cp, cp_cam, frogpilot_toggles):
     if self.CP.carFingerprint in CANFD_CAR:
@@ -190,14 +188,14 @@ class CarState(CarStateBase):
     # FrogPilot CarState functions
     fp_ret.brakeLights = bool(cp.vl["TCS13"]["BrakeLight"])
 
-    if self.CP.flags & HyundaiFlags.LKAS12 or self.CP.flags & HyundaiFlags.NAV_MSG:
+    if self.CP.flags & FrogPilotHyundaiFlags.LKAS12 or self.CP.flags & FrogPilotHyundaiFlags.NAV_MSG:
       fp_ret.dashboardSpeedLimit = self.calculate_speed_limit(cp, cp_cam) * speed_conv
 
     self.prev_distance_button = self.distance_button
     self.distance_button = self.cruise_buttons[-1] == Buttons.GAP_DIST
 
     self.lkas_previously_enabled = self.lkas_enabled
-    if self.CP.flags & HyundaiFlags.CAN_LFA_BTN:
+    if self.CP.flags & FrogPilotHyundaiFlags.CAN_LFA_BTN:
       self.lkas_enabled = cp.vl["BCM_PO_11"]["LFA_Pressed"]
 
     return ret, fp_ret
@@ -289,7 +287,7 @@ class CarState(CarStateBase):
     # FrogPilot CarState functions
     fp_ret.brakeLights = bool(cp.vl["TCS"]["DriverBraking"])
 
-    if self.CP.flags & HyundaiFlags.NAV_MSG:
+    if self.CP.flags & FrogPilotHyundaiFlags.NAV_MSG:
       fp_ret.dashboardSpeedLimit = self.calculate_speed_limit(cp, cp_cam) * speed_factor
 
     self.prev_distance_button = self.distance_button
@@ -357,7 +355,7 @@ class CarState(CarStateBase):
     else:
       messages.append(("LVR12", 100))
 
-    if CP.flags & HyundaiFlags.CAN_LFA_BTN:
+    if CP.flags & FrogPilotHyundaiFlags.CAN_LFA_BTN:
       messages.append(("BCM_PO_11", 50))
 
     messages += [
@@ -384,7 +382,7 @@ class CarState(CarStateBase):
       if CP.flags & HyundaiFlags.USE_FCA.value:
         messages.append(("FCA11", 50))
 
-    if CP.flags & HyundaiFlags.LKAS12:
+    if CP.flags & FrogPilotHyundaiFlags.LKAS12:
       messages.append(("LKAS12", 10))
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, 2)
@@ -423,7 +421,7 @@ class CarState(CarStateBase):
         ("SCC_CONTROL", 50),
       ]
 
-    if CP.flags & HyundaiFlags.CANFD_HDA2 and CP.flags & HyundaiFlags.NAV_MSG:
+    if CP.flags & HyundaiFlags.CANFD_HDA2 and CP.flags & FrogPilotHyundaiFlags.NAV_MSG:
       messages.append(("CLUSTER_SPEED_LIMIT", 10))
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, CanBus(CP).ECAN)
@@ -439,7 +437,7 @@ class CarState(CarStateBase):
         ("SCC_CONTROL", 50),
       ]
 
-    if not (CP.flags & HyundaiFlags.CANFD_HDA2) and CP.flags & HyundaiFlags.NAV_MSG:
+    if not (CP.flags & HyundaiFlags.CANFD_HDA2) and CP.flags & FrogPilotHyundaiFlags.NAV_MSG:
       messages.append(("CLUSTER_SPEED_LIMIT", 10))
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, CanBus(CP).CAM)
