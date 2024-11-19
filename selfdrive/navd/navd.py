@@ -65,7 +65,7 @@ class RouteEngine:
       self.mapbox_host = "https://maps.comma.ai"
 
     # FrogPilot variables
-    self.frogpilot_toggles = get_frogpilot_toggles(True)
+    self.frogpilot_toggles = get_frogpilot_toggles()
 
     self.approaching_intersection = False
     self.approaching_turn = False

@@ -44,12 +44,8 @@ private:
   };
 
   std::set<QString> toyotaKeys = {
-    "ClusterOffset", "FrogsGoMoosTweak", "NewToyotaTune",
-    "SNGHack", "ToyotaDoors"
-  };
-
-  std::set<QString> toyotaTuneKeys = {
-    "NewToyotaTune"
+    "ClusterOffset", "FrogsGoMoosTweak", "SNGHack",
+    "ToyotaDoors"
   };
 
   std::set<QString> voltKeys = {
@@ -81,7 +77,6 @@ private:
   bool isBolt;
   bool isGMPCMCruise;
   bool isImpreza;
-  bool isToyotaTuneSupported;
   bool isVolt;
   bool started;
 

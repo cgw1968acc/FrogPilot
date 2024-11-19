@@ -3,10 +3,11 @@ from enum import Enum, IntFlag
 
 from cereal import car
 from panda.python import uds
-from openpilot.common.params import Params
 from openpilot.selfdrive.car import CarSpecs, DbcDict, PlatformConfig, Platforms, dbc_dict
 from openpilot.selfdrive.car.docs_definitions import CarFootnote, CarHarness, CarDocs, CarParts, Tool, Column
 from openpilot.selfdrive.car.fw_query_definitions import FwQueryConfig, Request, StdQueries, p16
+
+from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles
 
 Ecu = car.CarParams.Ecu
 
@@ -26,7 +27,7 @@ class CarControllerParams:
       self.STEER_DELTA_DOWN = 40
     elif CP.carFingerprint == CAR.SUBARU_IMPREZA_2020:
       self.STEER_MAX = 1439
-    elif CP.carFingerprint == CAR.SUBARU_IMPREZA and Params().get_bool("CrosstrekTorque"):
+    elif CP.carFingerprint == CAR.SUBARU_IMPREZA and CP.flags & FrogPilotSubaruFlags.CROSSTREK_TORQUE_INCREASE:
       self.STEER_MAX = 3071
     else:
       self.STEER_MAX = 2047
@@ -70,6 +71,8 @@ class SubaruFlags(IntFlag):
   HYBRID = 32
   LKAS_ANGLE = 64
 
+class FrogPilotSubaruFlags(IntFlag):
+  CROSSTREK_TORQUE_INCREASE = 1
 
 GLOBAL_ES_ADDR = 0x787
 GEN2_ES_BUTTONS_DID = b'\x11\x30'
@@ -142,6 +145,7 @@ class CAR(Platforms):
       SubaruCarDocs("Subaru XV 2018-19", video_link="https://youtu.be/Agww7oE1k-s?t=26"),
     ],
     CarSpecs(mass=1568, wheelbase=2.67, steerRatio=15),
+    flags=(FrogPilotSubaruFlags.CROSSTREK_TORQUE_INCREASE if get_frogpilot_toggles().crosstrek_torque else 0),
   )
   SUBARU_IMPREZA_2020 = SubaruPlatformConfig(
     [

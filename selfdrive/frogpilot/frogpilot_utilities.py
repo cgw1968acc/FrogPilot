@@ -8,12 +8,8 @@ import time
 import urllib.request
 
 from openpilot.common.numpy_fast import interp, mean
-from openpilot.common.params_pyx import Params
 
 EARTH_RADIUS = 6378137  # Radius of the Earth in meters
-
-def update_frogpilot_toggles():
-  Params("/dev/shm/params").put_bool("FrogPilotTogglesUpdated", True)
 
 def calculate_distance_to_point(ax, ay, bx, by):
   a = math.sin((bx - ax) / 2) * math.sin((bx - ax) / 2) + math.cos(ax) * math.cos(bx) * math.sin((by - ay) / 2) * math.sin((by - ay) / 2)
