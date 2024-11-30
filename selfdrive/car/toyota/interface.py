@@ -165,9 +165,9 @@ class CarInterface(CarInterfaceBase):
       tune.kiV = [3.6, 2.4, 1.5]
 
     if params.get_bool("FrogsGoMoosTweak"):
-      ret.stoppingDecelRate = 0.1  # reach stopping target smoothly
-      ret.vEgoStopping = 0.15
-      ret.vEgoStarting = 0.15
+      ret.stoppingDecelRate = 0.05  # reach stopping target smoothly
+      ret.vEgoStopping = 0.20
+      ret.vEgoStarting = 0.10
 
     return ret
 
