@@ -27,8 +27,8 @@ ALLOW_THROTTLE_THRESHOLD = 0.5
 MIN_ALLOW_THROTTLE_SPEED = 2.5
 
 # Lookup table for turns
-_A_TOTAL_MAX_V = [1.7, 3.2]
-_A_TOTAL_MAX_BP = [20., 40.]
+_A_TOTAL_MAX_V = [1.6, 1.8, 3.2]
+_A_TOTAL_MAX_BP = [16, 20., 40.]
 
 # Kalman filter states enum
 LEAD_KALMAN_SPEED, LEAD_KALMAN_ACCEL = 0, 1
