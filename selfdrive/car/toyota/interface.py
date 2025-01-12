@@ -159,8 +159,8 @@ class CarInterface(CarInterfaceBase):
       tune.kiV = [.35, .23, .20, .17, .1]
 
     if params.get_bool("FrogsGoMoosTweak"):
-      ret.vEgoStopping = 0.20
-      ret.vEgoStarting = 0.10
+      ret.vEgoStopping = 0.15
+      ret.vEgoStarting = 0.01
       ret.stoppingDecelRate = 0.05  # reach stopping target smoothly
     elif candidate in TSS2_CAR:
       ret.vEgoStopping = 0.25
