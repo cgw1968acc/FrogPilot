@@ -18,9 +18,9 @@ from openpilot.common.swaglog import cloudlog
 
 LON_MPC_STEP = 0.2  # first step is 0.2s
 A_CRUISE_MIN = -1.2
-A_CRUISE_MAX_VALS =   [2.0, 2.0,  1.88, .95,  .64,  .57, .46,  .333,  .11]
+A_CRUISE_MAX_VALS =   [2.0, 2.0,  1.96, 1.0,  .65,  .58, .46,  .333,  .11]
 A_CRUISE_MAX_BP =     [0.,  6.1,  8.,   11.,  16.,  20.,  25.,  30.,  40.]
-A_CRUISE_MIN_V =       [-0.01, -0.10,  -0.35, -1.02, -1.02]
+A_CRUISE_MIN_V =       [-0.01, -0.10,  -0.30, -1.2, -1.2]
 A_CRUISE_MIN_BP =      [0.,    1.5,   10.,   20.,   30.]
 CONTROL_N_T_IDX = ModelConstants.T_IDXS[:CONTROL_N]
 ALLOW_THROTTLE_THRESHOLD = 0.5
